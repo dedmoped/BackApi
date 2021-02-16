@@ -58,8 +58,7 @@ namespace WebApi.Controllers
         {
             var client = new RestClient("https://covid-19-data.p.rapidapi.com/totals?format=json");
             var request = new RestRequest(Method.GET);
-            request.AddHeader("x-rapidapi-key", "8d213fc82fmsh2bece5fd797525ap134cd7jsn60eaf55ca93a");
-            request.AddHeader("x-rapidapi-host", "covid-19-data.p.rapidapi.com");
+ 
             IRestResponse response = client.Execute(request);
             CsvWork.email_send();
           //  CsvWork.jsonStringToCSV(response.Content);

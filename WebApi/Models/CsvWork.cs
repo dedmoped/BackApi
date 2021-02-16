@@ -52,7 +52,7 @@ namespace WebApi.Models
 
                 using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
                 {
-                    smtp.Credentials = new System.Net.NetworkCredential("testmaster621@gmail.com", "Passw0rd1328");
+                    
                     smtp.EnableSsl = true;
                     smtp.Send(mail);
                 }
