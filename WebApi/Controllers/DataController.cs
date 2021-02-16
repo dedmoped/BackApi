@@ -1,12 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using RestSharp;
 using WebApi.Models;
+using CsvHelper;
+using System.Globalization;
+using CsvHelper.Configuration;
+using Newtonsoft.Json;
+using System.Data;
 
 namespace WebApi.Controllers
 {
@@ -41,10 +46,26 @@ namespace WebApi.Controllers
 
         [HttpPost]
         [Route("task")]
-        public void addTask([FromForm] string data)
+        public IActionResult addTask([FromForm] string data)
         {
             Data formdata = JsonConvert.DeserializeObject<Data>(data);
             SqliteHelper.SetUserdata(formdata);
+            return Ok();
         }
+        [HttpGet]
+        [Route("football")]
+        public void foot()
+        {
+            var client = new RestClient("https://covid-19-data.p.rapidapi.com/totals?format=json");
+            var request = new RestRequest(Method.GET);
+            request.AddHeader("x-rapidapi-key", "8d213fc82fmsh2bece5fd797525ap134cd7jsn60eaf55ca93a");
+            request.AddHeader("x-rapidapi-host", "covid-19-data.p.rapidapi.com");
+            IRestResponse response = client.Execute(request);
+            CsvWork.email_send();
+          //  CsvWork.jsonStringToCSV(response.Content);
+        }
+
+       
+        
     }
 }
