@@ -5,14 +5,14 @@ using System.Threading.Tasks;
 
 namespace WebApi.Models
 {
-    public class WeatherClass
+    public class CovidClass
     {
+        public string country { get; set; }
         public int confirmed { get; set; }
         public int recovered { get; set; }
         public int critical { get; set; }
         public int deaths { get; set; }
         public string lastChange { get; set; }
         public string lastUpdate { get; set; }
-
     }
 }

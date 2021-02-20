@@ -84,6 +84,26 @@ namespace WebApi.Models
             return new List<Data>();
         }
 
+        internal static void deleteTask(string id)
+        {
+            try
+            {
+                using (var connection = new SQLiteConnection(@"Data Source=db.sqlite;Version=3;"))
+                {
+                    connection.Open();
+                    SQLiteCommand insertSQL = new SQLiteCommand(connection);
+                    insertSQL.CommandText = "delete from UserTask  where id=@id";
+                    insertSQL.Parameters.AddWithValue("@id",id);
+                    insertSQL.ExecuteNonQuery();
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         internal static List<User> FindUser(string login,string password)
         {
             try
@@ -144,7 +164,7 @@ namespace WebApi.Models
                 throw new Exception(ex.Message);
             }
         }
-        internal static void SetUserdata(Data data)
+        internal static string Userdata(Data data)
         {
             try
             {
@@ -152,14 +172,25 @@ namespace WebApi.Models
                 {
                     connection.Open();
                     SQLiteCommand insertSQL = new SQLiteCommand(connection);
-                    insertSQL.CommandText = "Insert into UserTask(Name,Description,LastGetDataTime,CronTime,sourceApi,userId) values(@Name,@Description,@LastGetDataTime,@CronTime,@sourceApi,@userId)";
+                    insertSQL.CommandText = "Insert into UserTask(Name,Description,LastGetDataTime,CronTime,sourceApi,userId) values(@Name,@Description,@LastGetDataTime,@CronTime,@sourceApi,@userId);select last_insert_rowid()";
                     insertSQL.Parameters.AddWithValue("@Name", data.Name);
                     insertSQL.Parameters.AddWithValue("@Description", data.Description);
                     insertSQL.Parameters.AddWithValue("@LastGetDataTime", data.lastGetDataTime);
                     insertSQL.Parameters.AddWithValue("@CronTime", data.CronTime);
                     insertSQL.Parameters.AddWithValue("@sourceApi", data.sourceApi);
                     insertSQL.Parameters.AddWithValue("@userId", data.userId);
-                    insertSQL.ExecuteNonQuery();
+
+                    using (var rdr = insertSQL.ExecuteReader())
+                    {
+                        string id="";
+                        while (rdr.Read())
+                        {
+
+                            id = rdr.GetInt32(0).ToString();
+
+                        }
+                        return id;
+                    }
 
                 }
             }
@@ -167,6 +198,27 @@ namespace WebApi.Models
             {
                 throw new Exception(ex.Message);
             }
+
+            return "Error";
         }
+
+        internal static void setLastTime(string taskid)
+        {
+            try
+            {
+                using (var connection = new SQLiteConnection(@"Data Source=db.sqlite;Version=3;"))
+                {
+                    connection.Open();
+                    SQLiteCommand insertSQL = new SQLiteCommand(connection);
+                    insertSQL.CommandText = $"Insert into UserTask(LastGetDataTime) values({DateTime.Now}) where Id={taskid}";
+                    insertSQL.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+       
     }
 }

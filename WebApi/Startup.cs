@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -9,17 +10,22 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Quartz;
+using Quartz.Impl;
+using WebApi.Jobs;
 using WebApi.Models;
+using WebApi.Services;
 
 namespace WebApi
 {
     public class Startup
     {
         public IConfiguration Configuration { get; }
-
+        public IScheduler _quartzSheduler;
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            _quartzSheduler = ConfigureQuartz();
         }
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
@@ -61,8 +67,14 @@ namespace WebApi
                     });
 
             });
+            services.AddSingleton<IEmailService, EmailService>();
+            services.AddTransient<SimpleJob>();
+            services.AddSingleton(procider => _quartzSheduler);
         }
-
+        private void OnShutdown()
+        {
+            if (_quartzSheduler.IsShutdown) _quartzSheduler.Shutdown();
+        }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
@@ -70,7 +82,8 @@ namespace WebApi
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            _quartzSheduler.JobFactory = new AspnetCoreJobFactory(app.ApplicationServices);
+            _quartzSheduler.Start().Wait();
             app.UseRouting();
 
             app.UseCors();
@@ -81,6 +94,22 @@ namespace WebApi
             {
                 endpoints.MapControllers();
             });
+        }
+
+        public IScheduler ConfigureQuartz()
+        {
+            NameValueCollection props = new NameValueCollection
+            {
+                {"quartz.serializer.type" ,"json" },
+                {"quartz.jobStore.type","Quartz.Impl.AdoJobStore.JobStoreTX, Quartz" },
+                {"quartz.jobStore.dataSource","default"},
+                {"quartz.jobStore.driverDelegateType","Quartz.Impl.AdoJobStore.SQLiteDelegate, Quartz" },
+                {"quartz.dataSource.default.provider","SQLite"},
+                {"quartz.dataSource.default.connectionString","Data Source=Quartz.sqlite; Version = 3;"}
+            };
+            StdSchedulerFactory schedulareFactory = new StdSchedulerFactory(props);
+            var scheduler = schedulareFactory.GetScheduler().Result;
+            return scheduler;
         }
     }
 }
