@@ -61,15 +61,6 @@ namespace WebApi.Controllers
             return Ok();
         }
 
-
-        [HttpPost]
-        [Route("task")]
-        public IActionResult addTask([FromForm] string data)
-        {
-            Data formdata = JsonConvert.DeserializeObject<Data>(data);
-           // SqliteHelper.SetUserdata(formdata);
-            return Ok();
-        }
         [HttpDelete]
         [Route("task/{id}")]
           public void delete(string id)
