@@ -14,6 +14,7 @@ namespace WebApi.Models
         public string startTime { get; set; }
         public string CronTime { get; set; }
         public string sourceApi { get; set; }
+        public string apiParams { get; set; }
         public int userId { get; set; }
 
     }

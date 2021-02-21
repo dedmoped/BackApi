@@ -30,9 +30,24 @@ namespace WebApi.Controllers
             if (user != null)
             {
                 var token = GenerateJWT(user);
-                return Ok(new { access_token = token, userid = user.Id, username = user.Email });
+                return Ok(new { access_token = token, useremail = user.Email });
             }
             return Unauthorized();
+        }
+
+        [Route("registration")]
+        [HttpPost]
+        public IActionResult Registration([FromBody] User request)
+        {
+            try
+            {
+                SqliteHelper.AddUser(request);
+            }
+            catch
+            {
+                return BadRequest(500);
+            }
+            return Ok();
         }
 
         private User AuthenticatedUser(string login, string password)

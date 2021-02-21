@@ -20,6 +20,8 @@ using System.Threading.Tasks;
 using System;
 using System.Diagnostics;
 using Quartz.Impl.Matchers;
+using System.Security.Claims;
+using System.Linq;
 
 namespace WebApi.Controllers
 {
@@ -27,12 +29,8 @@ namespace WebApi.Controllers
     [ApiController]
     public class DataController : ControllerBase
     {
-        IScheduler _scheduler;
-        public DataController(IScheduler scheduler)
-        {
-            this._scheduler = scheduler;
-        }
-
+        private string UserId => User.Claims.Single(c => c.Type == ClaimTypes.NameIdentifier).Value;
+        private string Email => User.Claims.Single(c => c.Type == ClaimTypes.Email).Value;
         [HttpGet]
         public IEnumerable<User> GetData()
         {
@@ -47,16 +45,22 @@ namespace WebApi.Controllers
         [Route("task")]
         public IActionResult GetTasks()
         {
-            List<Data> tasks = SqliteHelper.GetTasks();
+            List<Data> tasks = SqliteHelper.GetTasks(UserId);
 
             return Ok(tasks);
         }
+
         [HttpPost]
-        [Route("adduser")]
-        public void addUser([FromBody] User user)
+        [Authorize(Roles ="user")]
+        [Route("update")]
+        public IActionResult UpdateTasks([FromBody] Data data)
         {
-            SqliteHelper.AddUser(user);
+           SqliteHelper.UpdateTask(data);
+            data.startTime = DateTime.Now.ToString();
+           JobScheduler.UpdateJob(data,Email);
+            return Ok();
         }
+
 
         [HttpPost]
         [Route("task")]
@@ -66,48 +70,39 @@ namespace WebApi.Controllers
            // SqliteHelper.SetUserdata(formdata);
             return Ok();
         }
-        [HttpGet]
-        [Route("covid/{country}")]
-        public void covid(string country)
-        { 
-            CoronaApi.getData(country); 
-        }
-
         [HttpDelete]
         [Route("task/{id}")]
           public void delete(string id)
         {
             SqliteHelper.deleteTask(id);
-            _scheduler.UnscheduleJob(new TriggerKey(id));
+            JobScheduler.Deletejob(id);
+        }
+
+        [HttpGet]
+        [Authorize(Roles="admin")]
+        [Route("statistic")]
+        public IActionResult UsersStatisctic()
+        {
+            return Ok(SqliteHelper.GetUsersStatistic());
         }
 
         [HttpPost]
+        [Authorize(Roles="user")]
         [Route("job")]
         public async Task<IActionResult> StartJob([FromForm] string data)
         {
             try
             {
+               // HearthstoneApi.getData("cards");
                 Data formdata = JsonConvert.DeserializeObject<Data>(data);
-                string jobid = SqliteHelper.Userdata(formdata);
-                DateTime date = DateTime.Parse(formdata.startTime);
-                if (!_scheduler.IsStarted)
+                if (formdata.startTime == "")
                 {
-                    await _scheduler.Start();
+                    formdata.startTime = DateTime.Now.ToString();
+                    formdata.lastGetDataTime = DateTime.Now.ToString();
                 }
-
-                TriggerBuilder trigger = TriggerBuilder.Create().ForJob(new JobKey("SimpleJob")).WithIdentity(jobid).StartAt(date).WithSimpleSchedule(x=>x.WithIntervalInMinutes(Convert.ToInt32(formdata.CronTime)).RepeatForever());
-                ITrigger trigger1 = trigger.UsingJobData("info",jobid).Build();
-                var job=_scheduler.GetJobDetail(new JobKey("SimpleJob")).Result;
-              
-                if (job == null) {
-                    job = JobBuilder.Create<SimpleJob>().WithIdentity("SimpleJob").StoreDurably().Build();
-                    await _scheduler.ScheduleJob(job,trigger1);
-                    await _scheduler.AddJob(job, true);
-                }
-                else
-                {
-                    await _scheduler.ScheduleJob(trigger1);
-                }
+                string jobid = SqliteHelper.Userdata(formdata,UserId);
+               // DateTime date = DateTime.Parse(formdata.startTime);
+                JobScheduler.AddTaskTriggerForJob(formdata,jobid,Email);
                 return Ok();
             }
             catch(Exception ex)
@@ -115,35 +110,6 @@ namespace WebApi.Controllers
                 Debug.WriteLine(ex.Message);
                 return StatusCode(500);
             }
-        }
-        [HttpGet]
-        [Route("Actors")]
-        public void Actors()
-        {
-            var client = new RestClient("https://imdb8.p.rapidapi.com/actors/get-all-news?nconst=nm0001667");
-           // var client = new RestClient("https://imdb8.p.rapidapi.com/actors/list-born-today?month=7&day=27");
-            var request = new RestRequest(Method.GET);
-            request.AddHeader("x-rapidapi-key", "8d213fc82fmsh2bece5fd797525ap134cd7jsn60eaf55ca93a");
-            request.AddHeader("x-rapidapi-host", "imdb8.p.rapidapi.com");
-            IRestResponse response = client.Execute(request);
-            ActorsClass actorsClass = CsvWork.jsonStringToCSV<ActorsClass>(response.Content);
-            CsvWork.WriteCSV(actorsClass.items, Directory.GetCurrentDirectory() + @"\data.csv");
-            EmailClass.email_send("fdf");
-        }
-        [HttpGet]
-        [Route("news")]
-       public string news()
-        {
-            var client = new RestClient("https://bloomberg-market-and-financial-news.p.rapidapi.com/stories/detail?internalID=QON8TWT1UM0Z01");
-           // var client = new RestClient("https://bloomberg-market-and-financial-news.p.rapidapi.com/stories/list?template=CURRENCY&id=usdjpy");
-            var request = new RestRequest(Method.GET);
-            request.AddHeader("x-rapidapi-key", "8d213fc82fmsh2bece5fd797525ap134cd7jsn60eaf55ca93a");
-            request.AddHeader("x-rapidapi-host", "bloomberg-market-and-financial-news.p.rapidapi.com");
-            IRestResponse response = client.Execute(request);
-            Details actorsClass = CsvWork.jsonStringToCSV<Details>(response.Content);
-            CsvWork.WriteCSV(new List<Details>() { actorsClass }, Directory.GetCurrentDirectory() + @"\data.csv");
-            EmailClass.email_send("fsdf");
-            return response.Content;
         }
         
     }

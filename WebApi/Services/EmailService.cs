@@ -9,15 +9,15 @@ namespace WebApi.Services
 {
     public interface IEmailService
     {
-        void Send(string receiver, string subject, string body);
+        void Send(string email,string info);
     }
     public class EmailService:IEmailService
     {
       
 
-        public void Send(string receiver, string subject, string body)
+        public void Send(string email, string info)
         {
-            EmailClass.email_send(receiver);
+            EmailClass.email_send(email,info);
         }
     }
 }

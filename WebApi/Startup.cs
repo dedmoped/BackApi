@@ -21,17 +21,23 @@ namespace WebApi
     public class Startup
     {
         public IConfiguration Configuration { get; }
-        public IScheduler _quartzSheduler;
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            _quartzSheduler = ConfigureQuartz();
         }
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+
+            services.AddTransient<AspnetCoreJobFactory>();
+            services.AddScoped<CoronaJob>();
+            services.AddScoped<ActorsJob>();
+            services.AddScoped<HearthstoneJob>();
+            services.AddScoped<IEmailService, EmailService>();
+
             var authOptions = Configuration.GetSection("Auth").Get<AuthOptions>();
             var authOptions1 = Configuration.GetSection("Auth");
             services.Configure<AuthOptions>(authOptions1);
@@ -67,14 +73,9 @@ namespace WebApi
                     });
 
             });
-            services.AddSingleton<IEmailService, EmailService>();
-            services.AddTransient<SimpleJob>();
-            services.AddSingleton(procider => _quartzSheduler);
+
         }
-        private void OnShutdown()
-        {
-            if (_quartzSheduler.IsShutdown) _quartzSheduler.Shutdown();
-        }
+
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
@@ -82,8 +83,7 @@ namespace WebApi
             {
                 app.UseDeveloperExceptionPage();
             }
-            _quartzSheduler.JobFactory = new AspnetCoreJobFactory(app.ApplicationServices);
-            _quartzSheduler.Start().Wait();
+
             app.UseRouting();
 
             app.UseCors();
@@ -94,22 +94,6 @@ namespace WebApi
             {
                 endpoints.MapControllers();
             });
-        }
-
-        public IScheduler ConfigureQuartz()
-        {
-            NameValueCollection props = new NameValueCollection
-            {
-                {"quartz.serializer.type" ,"json" },
-                {"quartz.jobStore.type","Quartz.Impl.AdoJobStore.JobStoreTX, Quartz" },
-                {"quartz.jobStore.dataSource","default"},
-                {"quartz.jobStore.driverDelegateType","Quartz.Impl.AdoJobStore.SQLiteDelegate, Quartz" },
-                {"quartz.dataSource.default.provider","SQLite"},
-                {"quartz.dataSource.default.connectionString","Data Source=Quartz.sqlite; Version = 3;"}
-            };
-            StdSchedulerFactory schedulareFactory = new StdSchedulerFactory(props);
-            var scheduler = schedulareFactory.GetScheduler().Result;
-            return scheduler;
         }
     }
 }
