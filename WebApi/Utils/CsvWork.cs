@@ -8,17 +8,10 @@ using System.Net.Mail;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace WebApi.Models
+namespace WebApi.Utils
 {
     public class CsvWork
     {
-
-
-        public static T jsonStringToCSV<T>(string data)
-        {
-            var dataTable =  JsonConvert.DeserializeObject<T> (data);
-            return dataTable;
-        }
         public static void WriteCSV<T>(IEnumerable<T> items, string path)
         {
             Type itemType = typeof(T);

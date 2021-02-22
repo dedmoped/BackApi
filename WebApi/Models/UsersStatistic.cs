@@ -7,8 +7,8 @@ namespace WebApi.Models
 {
     public class UsersStatistic
     {
-         public int userId{ get; set; }
-         public string userEmail{ get; set; }
-         public int countTask{ get; set; }
+         public int UserId{ get; set; }
+         public string UserEmail{ get; set; }
+         public int CountTask{ get; set; }
     }
 }

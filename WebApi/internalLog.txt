@@ -1,0 +1,63 @@
+2021-02-22 17:39:20.2377 Info Message Template Auto Format enabled
+2021-02-22 17:39:20.3427 Info Loading assembly: NLog.Web.AspNetCore
+2021-02-22 17:39:20.4527 Info Adding target FileTarget(Name=alldata)
+2021-02-22 17:39:20.4527 Info Adding target FileTarget(Name=otherFile-web)
+2021-02-22 17:39:20.4927 Info Validating config: TargetNames=alldata, otherFile-web, ConfigItems=45, FilePath=D:\4curs\Omega\WebApi\WebApi\bin\Debug\netcoreapp3.1\NLog.config
+2021-02-22 17:39:20.5167 Info Configuration initialized.
+2021-02-22 17:39:20.5167 Info NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 4.7.7.12472. Product version: 4.7.7+3755739d37c1ec92bac4de2cefad68a0f5ea7ec1. GlobalAssemblyCache: False
+2021-02-22 17:44:49.3045 Info Message Template Auto Format enabled
+2021-02-22 17:44:49.3205 Info Loading assembly: NLog.Web.AspNetCore
+2021-02-22 17:44:49.3885 Info Adding target FileTarget(Name=alldata)
+2021-02-22 17:44:49.3925 Info Adding target FileTarget(Name=otherFile-web)
+2021-02-22 17:44:49.4295 Info Validating config: TargetNames=alldata, otherFile-web, ConfigItems=45, FilePath=D:\4curs\Omega\WebApi\WebApi\bin\Debug\netcoreapp3.1\NLog.config
+2021-02-22 17:44:49.4635 Info Configuration initialized.
+2021-02-22 17:44:49.4635 Info NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 4.7.7.12472. Product version: 4.7.7+3755739d37c1ec92bac4de2cefad68a0f5ea7ec1. GlobalAssemblyCache: False
+2021-02-22 17:50:44.4078 Info Message Template Auto Format enabled
+2021-02-22 17:50:44.4478 Info Loading assembly: NLog.Web.AspNetCore
+2021-02-22 17:50:44.5888 Info Adding target FileTarget(Name=alldata)
+2021-02-22 17:50:44.5968 Info Adding target FileTarget(Name=otherFile-web)
+2021-02-22 17:50:44.6478 Info Validating config: TargetNames=alldata, otherFile-web, ConfigItems=45, FilePath=D:\4curs\Omega\WebApi\WebApi\bin\Debug\netcoreapp3.1\NLog.config
+2021-02-22 17:50:44.6858 Info Configuration initialized.
+2021-02-22 17:50:44.6858 Info NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 4.7.7.12472. Product version: 4.7.7+3755739d37c1ec92bac4de2cefad68a0f5ea7ec1. GlobalAssemblyCache: False
+2021-02-22 17:54:24.7414 Info Message Template Auto Format enabled
+2021-02-22 17:54:24.7804 Info Loading assembly: NLog.Web.AspNetCore
+2021-02-22 17:54:24.8764 Info Adding target FileTarget(Name=alldata)
+2021-02-22 17:54:24.8794 Info Adding target FileTarget(Name=otherFile-web)
+2021-02-22 17:54:24.9254 Info Validating config: TargetNames=alldata, otherFile-web, ConfigItems=45, FilePath=D:\4curs\Omega\WebApi\WebApi\bin\Debug\netcoreapp3.1\NLog.config
+2021-02-22 17:54:24.9514 Info Configuration initialized.
+2021-02-22 17:54:24.9514 Info NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 4.7.7.12472. Product version: 4.7.7+3755739d37c1ec92bac4de2cefad68a0f5ea7ec1. GlobalAssemblyCache: False
+2021-02-22 18:18:07.6518 Info Message Template Auto Format enabled
+2021-02-22 18:18:07.6748 Info Loading assembly: NLog.Web.AspNetCore
+2021-02-22 18:18:07.7488 Info Adding target FileTarget(Name=alldata)
+2021-02-22 18:18:07.7518 Info Adding target FileTarget(Name=otherFile-web)
+2021-02-22 18:18:07.7908 Info Validating config: TargetNames=alldata, otherFile-web, ConfigItems=45, FilePath=D:\4curs\Omega\WebApi\WebApi\bin\Debug\netcoreapp3.1\NLog.config
+2021-02-22 18:18:07.8138 Info Configuration initialized.
+2021-02-22 18:18:07.8138 Info NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 4.7.7.12472. Product version: 4.7.7+3755739d37c1ec92bac4de2cefad68a0f5ea7ec1. GlobalAssemblyCache: False
+2021-02-22 18:22:30.3588 Info Message Template Auto Format enabled
+2021-02-22 18:22:30.4468 Info Loading assembly: NLog.Web.AspNetCore
+2021-02-22 18:22:30.5188 Info Adding target FileTarget(Name=alldata)
+2021-02-22 18:22:30.5188 Info Adding target FileTarget(Name=otherFile-web)
+2021-02-22 18:22:30.5588 Info Validating config: TargetNames=alldata, otherFile-web, ConfigItems=45, FilePath=D:\4curs\Omega\WebApi\WebApi\bin\Debug\netcoreapp3.1\NLog.config
+2021-02-22 18:22:30.5848 Info Configuration initialized.
+2021-02-22 18:22:30.5848 Info NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 4.7.7.12472. Product version: 4.7.7+3755739d37c1ec92bac4de2cefad68a0f5ea7ec1. GlobalAssemblyCache: False
+2021-02-22 18:25:35.8734 Info Message Template Auto Format enabled
+2021-02-22 18:25:35.9084 Info Loading assembly: NLog.Web.AspNetCore
+2021-02-22 18:25:35.9774 Info Adding target FileTarget(Name=alldata)
+2021-02-22 18:25:35.9774 Info Adding target FileTarget(Name=otherFile-web)
+2021-02-22 18:25:36.0144 Info Validating config: TargetNames=alldata, otherFile-web, ConfigItems=45, FilePath=D:\4curs\Omega\WebApi\WebApi\bin\Debug\netcoreapp3.1\NLog.config
+2021-02-22 18:25:36.0464 Info Configuration initialized.
+2021-02-22 18:25:36.0464 Info NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 4.7.7.12472. Product version: 4.7.7+3755739d37c1ec92bac4de2cefad68a0f5ea7ec1. GlobalAssemblyCache: False
+2021-02-22 18:26:56.5230 Info Message Template Auto Format enabled
+2021-02-22 18:26:56.5750 Info Loading assembly: NLog.Web.AspNetCore
+2021-02-22 18:26:56.6770 Info Adding target FileTarget(Name=alldata)
+2021-02-22 18:26:56.6770 Info Adding target FileTarget(Name=otherFile-web)
+2021-02-22 18:26:56.7170 Info Validating config: TargetNames=alldata, otherFile-web, ConfigItems=45, FilePath=D:\4curs\Omega\WebApi\WebApi\bin\Debug\netcoreapp3.1\NLog.config
+2021-02-22 18:26:56.7490 Info Configuration initialized.
+2021-02-22 18:26:56.7490 Info NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 4.7.7.12472. Product version: 4.7.7+3755739d37c1ec92bac4de2cefad68a0f5ea7ec1. GlobalAssemblyCache: False
+2021-02-22 18:31:21.8482 Info Message Template Auto Format enabled
+2021-02-22 18:31:21.8782 Info Loading assembly: NLog.Web.AspNetCore
+2021-02-22 18:31:22.0172 Info Adding target FileTarget(Name=alldata)
+2021-02-22 18:31:22.0172 Info Adding target FileTarget(Name=otherFile-web)
+2021-02-22 18:31:22.0762 Info Validating config: TargetNames=alldata, otherFile-web, ConfigItems=45, FilePath=D:\4curs\Omega\WebApi\WebApi\bin\Debug\netcoreapp3.1\NLog.config
+2021-02-22 18:31:22.1172 Info Configuration initialized.
+2021-02-22 18:31:22.1172 Info NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 4.7.7.12472. Product version: 4.7.7+3755739d37c1ec92bac4de2cefad68a0f5ea7ec1. GlobalAssemblyCache: False

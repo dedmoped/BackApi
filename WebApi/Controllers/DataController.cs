@@ -1,27 +1,14 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RestSharp;
 using WebApi.Models;
-using CsvHelper;
-using System.Globalization;
-using CsvHelper.Configuration;
 using Newtonsoft.Json;
-using System.Data;
-using WebApi.HelpClass;
-using WebApi.Apis;
-using Quartz;
 using WebApi.Jobs;
 using System.Threading.Tasks;
 using System;
-using System.Diagnostics;
-using Quartz.Impl.Matchers;
 using System.Security.Claims;
 using System.Linq;
+using WebApi.Repository;
+using Microsoft.Extensions.Logging;
 
 namespace WebApi.Controllers
 {
@@ -31,13 +18,14 @@ namespace WebApi.Controllers
     {
         private string UserId => User.Claims.Single(c => c.Type == ClaimTypes.NameIdentifier).Value;
         private string Email => User.Claims.Single(c => c.Type == ClaimTypes.Email).Value;
-        [HttpGet]
-        public IEnumerable<User> GetData()
+        private readonly ITaskRepository _taskRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly ILogger<DataController> _logger;
+        public DataController(ITaskRepository taskRepository,IUserRepository userRepository,ILogger<DataController> logger)
         {
-
-            List<User> list = SqliteHelper.GetData();
-
-            return list;
+            _taskRepository = taskRepository;
+            _userRepository = userRepository;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -45,9 +33,8 @@ namespace WebApi.Controllers
         [Route("task")]
         public IActionResult GetTasks()
         {
-            List<Data> tasks = SqliteHelper.GetTasks(UserId);
-
-            return Ok(tasks);
+            _logger.LogInformation("Start GetTasks");
+            return Ok(_taskRepository.GetTask(UserId));
         }
 
         [HttpPost]
@@ -55,18 +42,22 @@ namespace WebApi.Controllers
         [Route("update")]
         public IActionResult UpdateTasks([FromBody] Data data)
         {
-           SqliteHelper.UpdateTask(data);
-            data.startTime = DateTime.Now.ToString();
-           JobScheduler.UpdateJob(data,Email);
+            _logger.LogInformation("UpdateTasks");
+            _taskRepository.Update(data);
+            data.StartTime = DateTime.Now.ToString();
+            JobScheduler.UpdateJob(data,Email);
+            _logger.LogInformation("Tasks end update");
             return Ok();
         }
 
         [HttpDelete]
+        [Authorize(Roles = "user")]
         [Route("task/{id}")]
           public void delete(string id)
         {
-            SqliteHelper.deleteTask(id);
-            JobScheduler.Deletejob(id);
+            _logger.LogInformation("Delete task and user");
+            _taskRepository.Delete(id);
+            JobScheduler.Deletejob(id.ToString());
         }
 
         [HttpGet]
@@ -74,7 +65,8 @@ namespace WebApi.Controllers
         [Route("statistic")]
         public IActionResult UsersStatisctic()
         {
-            return Ok(SqliteHelper.GetUsersStatistic());
+            _logger.LogInformation("GetStatistic");
+            return Ok(_userRepository.GetStatistic());
         }
 
         [HttpPost]
@@ -84,23 +76,24 @@ namespace WebApi.Controllers
         {
             try
             {
-               // HearthstoneApi.getData("cards");
-                Data formdata = JsonConvert.DeserializeObject<Data>(data);
-                if (formdata.startTime == "")
+                _logger.LogInformation("Start crete Task");
+                Data FormData = JsonConvert.DeserializeObject<Data>(data);
+                if (FormData.StartTime == "")
                 {
-                    formdata.startTime = DateTime.Now.ToString();
-                    formdata.lastGetDataTime = DateTime.Now.ToString();
+                    FormData.StartTime = DateTime.Now.ToString();
+                    FormData.LastGetDataTime = DateTime.Now.ToString();
                 }
-                string jobid = SqliteHelper.Userdata(formdata,UserId);
-               // DateTime date = DateTime.Parse(formdata.startTime);
-                JobScheduler.AddTaskTriggerForJob(formdata,jobid,Email);
+                string taskid = _taskRepository.Create(FormData, UserId);
+                JobScheduler.AddTaskTriggerForJob(FormData, taskid,Email);
+                _logger.LogInformation("Task created");
                 return Ok();
             }
             catch(Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                _logger.LogError(ex.Message);
                 return StatusCode(500);
             }
+           
         }
         
     }

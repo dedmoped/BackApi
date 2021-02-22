@@ -2,21 +2,20 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using WebApi.HelpClass;
 using WebApi.Models;
 using WebApi.Services;
+using WebApi.Utils;
 
 namespace WebApi.Apis
 {
     public class HearthstoneApi
     {
-        public static void getData(string parameters,string email,IEmailService service)
+        const string basicards = "Basic-Cards";
+        public static void GetData(string parameters,string email,IEmailService service)
         {
             
                 RestClient client;
-                if (parameters == "Basic-Cards")
+                if (parameters == basicards)
                     client = new RestClient("https://omgvamp-hearthstone-v1.p.rapidapi.com/cards");
                 else
                     client = new RestClient("https://omgvamp-hearthstone-v1.p.rapidapi.com/cards/classes/" + parameters);
@@ -26,13 +25,13 @@ namespace WebApi.Apis
                 IRestResponse response = client.Execute(request);
             if (parameters == "Basic-Cards")
             {
-                HearthstoneClass covidClasses = ParseApiData.jsonStringToCSV<HearthstoneClass>(response.Content);
+                HearthstoneClass covidClasses = ParseApiData.JsonStringToCSV<HearthstoneClass>(response.Content);
                 CsvWork.WriteCSV(covidClasses.Classic, Directory.GetCurrentDirectory() + @"\Hearthstone-Info.csv");
             }
             else
             {
                
-                List<HsClasses> covidClasses = ParseApiData.jsonStringToCSV<List<HsClasses>>(response.Content);
+                List<HsClasses> covidClasses = ParseApiData.JsonStringToCSV<List<HsClasses>>(response.Content);
                 CsvWork.WriteCSV(covidClasses, Directory.GetCurrentDirectory() + @"\Hearthstone-Info.csv");
             }
             service.Send(email, "Hearthstone-Info");

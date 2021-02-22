@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using WebApi.HelpClass;
+﻿using Microsoft.Extensions.Configuration;
+using WebApi.Utils;
 
 namespace WebApi.Services
 {
@@ -13,11 +9,17 @@ namespace WebApi.Services
     }
     public class EmailService:IEmailService
     {
+        private readonly IConfiguration _configuration;
+        public EmailService(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
       
 
         public void Send(string email, string info)
         {
-            EmailClass.email_send(email,info);
+            EmailClass SendEmail = new EmailClass(_configuration);
+            SendEmail.EmailSend(email,info);
         }
     }
 }

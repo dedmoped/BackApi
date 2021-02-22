@@ -14,6 +14,7 @@ using Quartz;
 using Quartz.Impl;
 using WebApi.Jobs;
 using WebApi.Models;
+using WebApi.Repository;
 using WebApi.Services;
 
 namespace WebApi
@@ -37,6 +38,8 @@ namespace WebApi
             services.AddScoped<ActorsJob>();
             services.AddScoped<HearthstoneJob>();
             services.AddScoped<IEmailService, EmailService>();
+            services.AddSingleton<ITaskRepository, TaskRepository>();
+            services.AddSingleton<IUserRepository, UserRepository>();
 
             var authOptions = Configuration.GetSection("Auth").Get<AuthOptions>();
             var authOptions1 = Configuration.GetSection("Auth");

@@ -12,6 +12,13 @@ namespace WebApi.Jobs
     public class JobScheduler
     {
         static IScheduler scheduler;
+        const string Corona = "Corona-19";
+        const string Actors = "Actors";
+        const string Hearthstone = "Hearthstone";
+        const string CoronaJobKey = "CoronaJob";
+        const string ActorsJobKey = "ActorsJob";
+        const string HearthstoneJobKey = "HearthstoneJob";
+
         public static async void Start(IServiceProvider serviceProvider)
         {
 
@@ -22,17 +29,17 @@ namespace WebApi.Jobs
 
             IJobDetail covidJob = JobBuilder.Create<CoronaJob>()
                 .StoreDurably()
-                .WithIdentity("CoronaJob")
+                .WithIdentity(CoronaJobKey)
                 .Build();
             await scheduler.AddJob(covidJob, true);
             IJobDetail actorsJob = JobBuilder.Create<ActorsJob>()
                .StoreDurably()
-               .WithIdentity("ActorsJob")
+               .WithIdentity(ActorsJobKey)
                .Build();
             await scheduler.AddJob(actorsJob, true);
             IJobDetail hearthstoneJob = JobBuilder.Create<HearthstoneJob>()
                .StoreDurably()
-               .WithIdentity("HearthstoneJob")
+               .WithIdentity(HearthstoneJobKey)
                .Build();
             await scheduler.AddJob(hearthstoneJob, true);
         }
@@ -44,30 +51,30 @@ namespace WebApi.Jobs
                         .WithIntervalInMinutes(Convert.ToInt32(task.CronTime))
                         .RepeatForever());
 
-            if (DateTime.Now >= DateTime.Parse(task.startTime))
+            if (DateTime.Now >= DateTime.Parse(task.StartTime))
             {
                 triggerBuilder.StartNow();
             }
             else
             {
-                triggerBuilder.StartAt(DateTimeOffset.Parse(task.startTime));
+                triggerBuilder.StartAt(DateTimeOffset.Parse(task.StartTime));
             }
 
             ITrigger trigger = null;
-            if (task.sourceApi == "Corona-19")
+            if (task.StartTime == Corona)
             {
-                trigger = triggerBuilder.ForJob("CoronaJob").Build();
+                trigger = triggerBuilder.ForJob(CoronaJobKey).Build();
             }
-            if (task.sourceApi == "Actors")
+            if (task.SourceApi == Actors)
             {
-                trigger = triggerBuilder.ForJob("ActorsJob").Build();
+                trigger = triggerBuilder.ForJob(ActorsJobKey).Build();
             }
-            if (task.sourceApi == "Hearthstone")
+            if (task.SourceApi == Hearthstone)
             {
-                trigger = triggerBuilder.ForJob("HearthstoneJob").Build();
+                trigger = triggerBuilder.ForJob(HearthstoneJobKey).Build();
             }
             trigger.JobDataMap["email"] = email;
-            trigger.JobDataMap["params"] = task.apiParams;
+            trigger.JobDataMap["params"] = task.ApiParams;
             trigger.JobDataMap["id"] = TriggerId;
             await scheduler.ScheduleJob(trigger);
         }
@@ -80,14 +87,8 @@ namespace WebApi.Jobs
 
         public static async void Deletejob(string trriggerid)
         {
-            SqliteHelper.deleteTask(trriggerid);
             await scheduler.UnscheduleJob(new TriggerKey(trriggerid));
         }
-        //public static async void UpdateTaskTrigger(Models.Task task, User user)
-        //{
-        //    await scheduler.UnscheduleJob(new TriggerKey(task.id.ToString()));
-        //    AddTaskTriggerForJob(task, user);
-        //}
         private static NameValueCollection GetThreadConstraint() // получаем ограничение на кол-во одновременных потоков для задач
         {
             return new NameValueCollection { 

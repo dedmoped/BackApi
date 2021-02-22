@@ -1,19 +1,25 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Mail;
 using System.Threading.Tasks;
 
-namespace WebApi.HelpClass
+namespace WebApi.Utils
 {
     public class EmailClass
     {
-        public static void email_send(string emai,string info)
+        private  IConfiguration configuration;
+        public EmailClass(IConfiguration configuration)
+        {
+            this.configuration = configuration;
+        }
+        public  void EmailSend(string emai,string info)
         {
             using (MailMessage mail = new MailMessage())
             {
-                mail.From = new MailAddress("testmaster621@gmail.com");
+                mail.From = new MailAddress(configuration["Email:FromEmail"]);
                 mail.To.Add(emai);
                 mail.Subject = info;
 
@@ -21,9 +27,9 @@ namespace WebApi.HelpClass
                 attachment = new System.Net.Mail.Attachment(Directory.GetCurrentDirectory() + @"\"+info+".csv");
                 mail.Attachments.Add(attachment);
 
-                using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                using (SmtpClient smtp = new SmtpClient(configuration["Email:SmtpHost"], Convert.ToInt32(configuration["Email:SmtpPort"])))
                 {
-                    smtp.Credentials = new System.Net.NetworkCredential("testmaster621@gmail.com", "Passw0rd1328");
+                    smtp.Credentials = new System.Net.NetworkCredential(configuration["Email:FromEmail"], configuration["Email:Password"]);
                     smtp.EnableSsl = true;
                     smtp.Send(mail);
                 }

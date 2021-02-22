@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using WebApi.Models;
+using WebApi.Repository;
+using WebApi.Utils;
 
 namespace WebApi.Controllers
 {
@@ -15,10 +17,11 @@ namespace WebApi.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IOptions<AuthOptions> authOptions;
-
-        public AuthController(IOptions<AuthOptions> options)
+        private readonly IUserRepository userRepository;
+        public AuthController(IOptions<AuthOptions> options, IUserRepository userRepository)
         {
             this.authOptions = options;
+            this.userRepository = userRepository;
         }
 
         [Route("login")]
@@ -41,7 +44,8 @@ namespace WebApi.Controllers
         {
             try
             {
-                SqliteHelper.AddUser(request);
+                request.Password = Crypto.HashPassword(request.Password);
+                userRepository.Create(request);
             }
             catch
             {
@@ -50,10 +54,12 @@ namespace WebApi.Controllers
             return Ok();
         }
 
-        private User AuthenticatedUser(string login, string password)
+        private User AuthenticatedUser(string login,string password)
         {
-            
-            return SqliteHelper.FindUser(login, password).FirstOrDefault();
+            User user=userRepository.FindUser(login).FirstOrDefault();
+            if (Crypto.VerifyHashedPassword(user.Password, password))
+                return user;
+            return null;
         }
         private string GenerateJWT(User user)
         {

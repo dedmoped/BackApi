@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace WebApi.HelpClass
+namespace WebApi.Utils
 {
     public class ParseApiData
     {
-        public static T jsonStringToCSV<T>(string data)
+        public static T JsonStringToCSV<T>(string data)
         {
             var dataTable = JsonConvert.DeserializeObject<T>(data);
             return dataTable;
