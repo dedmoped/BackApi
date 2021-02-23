@@ -45,7 +45,7 @@ namespace WebApi.Controllers
             try
             {
                 request.Password = Crypto.HashPassword(request.Password);
-                if(userRepository.Create(request))
+                if(!userRepository.Create(request))
                 return BadRequest(500);
             }
             catch
