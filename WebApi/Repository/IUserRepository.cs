@@ -8,7 +8,7 @@ namespace WebApi.Repository
 {
     public interface IUserRepository
     {
-        void Create(User user);
+        bool Create(User user);
         IEnumerable<User> FindUser(string login);
         IEnumerable<UsersStatistic> GetStatistic();
     }

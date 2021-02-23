@@ -7,31 +7,45 @@ using System.Threading.Tasks;
 using WebApi.Utils;
 using WebApi.Models;
 using WebApi.Services;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System.Reflection;
 
 namespace WebApi.Apis
 {
     public class ActorsApi
     {
+        
         const string allnews = "get-all-news";
-        public static void GetData(string parameters,string email,IEmailService service)
+        public static void GetData(string parameters,string id, IServiceScope scope)
         {
-            RestClient client;
-            if (parameters == allnews)
+            IConfiguration _configuration = scope.ServiceProvider.GetService<IConfiguration>();
+            ILogger _logger = scope.ServiceProvider.GetService<ILogger<ActorsApi>>();
+            try
             {
-                client = new RestClient("https://imdb8.p.rapidapi.com/actors/get-all-news?nconst=nm0001667");
+                _logger.LogInformation("Start Get " + parameters);
+                RestClient client;
+                if (parameters == allnews)
+                {
+                    client = new RestClient(_configuration["Url:ActrosUrlAllNews"]);
+                }
+                else
+                {
+                    client = new RestClient(_configuration["Url:ActrosUrlTitleNews"]);
+                }
+                var request = new RestRequest(Method.GET);
+                request.AddHeader("x-rapidapi-key", _configuration["Api:Key"]);
+                request.AddHeader("x-rapidapi-host", _configuration["Api:ActorsHost"]);
+                IRestResponse response = client.Execute(request);
+                ActorsClass actorsClass = ParseApiData.JsonStringToCSV<ActorsClass>(response.Content);
+                CsvWork.WriteCSV(actorsClass.items, AppDomain.CurrentDomain.BaseDirectory + @"\Actors-Info"+ id + ".csv");
+                _logger.LogInformation("End Get " + parameters);
             }
-            else
+            catch(Exception ex)
             {
-                 client = new RestClient("https://imdb8.p.rapidapi.com/title/get-news?tconst=tt0944947&limit=25");
+                _logger.LogError(ex.Message);
             }
-            var request = new RestRequest(Method.GET);
-            request.AddHeader("x-rapidapi-key", "8d213fc82fmsh2bece5fd797525ap134cd7jsn60eaf55ca93a");
-            request.AddHeader("x-rapidapi-host", "imdb8.p.rapidapi.com");
-            IRestResponse response = client.Execute(request);
-            ActorsClass actorsClass = ParseApiData.JsonStringToCSV<ActorsClass>(response.Content);
-            CsvWork.WriteCSV(actorsClass.items, Directory.GetCurrentDirectory() + @"\Actors-Info.csv");
-            service.Send(email, "Actors-Info");
-          // Directory.Delete(@"\Actors-Info.csv");
 
         }
 

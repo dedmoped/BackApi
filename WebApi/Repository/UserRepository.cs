@@ -10,20 +10,17 @@ using WebApi.Utils;
 
 namespace WebApi.Repository
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository : AbstractRepository<UserRepository>, IUserRepository
     {
-        private readonly string connectionstring;
-        private readonly ILogger _logger;
-        public UserRepository(IConfiguration configuration,ILogger<UserRepository> _logger)
+
+        public UserRepository(IConfiguration configuration,ILogger<UserRepository> _logger):base(configuration,_logger)
         {
-            connectionstring = configuration["Database:ConnectionString"];
-            this._logger = _logger;
         }
-        public void Create(User user)
+        public bool Create(User user)
         {
             try
             {
-                _logger.LogInformation("Start Create User");
+                logger.LogInformation("Start Create User");
                 using (var connection = new SQLiteConnection(connectionstring))
                 {
                     connection.Open();
@@ -35,11 +32,13 @@ namespace WebApi.Repository
                     insertSQL.ExecuteNonQuery();
 
                 }
-                _logger.LogInformation("Create User Completed");
+                logger.LogInformation("Create User Completed");
+                return true;
             }
            catch(Exception ex)
             {
-                _logger.LogError(ex.Message, "Create User fail");
+                logger.LogError(ex.Message, "Create User fail");
+                return false;
             }
         }
 
@@ -47,7 +46,7 @@ namespace WebApi.Repository
         {
             try
             {
-                _logger.LogInformation("Start FindUser");
+                logger.LogInformation("Start FindUser");
                 using (var connection = new SQLiteConnection(connectionstring))
                 {
                     connection.Open();
@@ -69,7 +68,7 @@ namespace WebApi.Repository
                                 Role = rdr.GetString(4)
                             });
                         }
-                        _logger.LogInformation("FindUser Completed");
+                        logger.LogInformation("FindUser Completed");
                         return users;
                     }
 
@@ -77,14 +76,14 @@ namespace WebApi.Repository
             }
             catch(Exception ex)
             {
-                _logger.LogError(ex.Message, "FindUser Fail");
+                logger.LogError(ex.Message, "FindUser Fail");
                 return new List<User>();
             }
         }
 
         public IEnumerable<UsersStatistic> GetStatistic()
         {
-            _logger.LogInformation("Start GetStatistic");
+            logger.LogInformation("Start GetStatistic");
             try
             {
                 using (var connection = new SQLiteConnection(connectionstring))
@@ -102,14 +101,14 @@ namespace WebApi.Repository
                         {
                             users.Add(new UsersStatistic() { UserId = rdr.GetInt32(0), UserEmail = rdr.GetString(1), CountTask = rdr.GetInt32(2) });
                         }
-                        _logger.LogInformation("GetStatistic completed");
+                        logger.LogInformation("GetStatistic completed");
                         return users;
                     }
                 }
             }
             catch(Exception ex)
             {
-                _logger.LogError(ex.Message, "FindUser Fail");
+                logger.LogError(ex.Message, "FindUser Fail");
                 return new List<UsersStatistic>();
             }
         }

@@ -1,11 +1,14 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 using WebApi.Utils;
 
 namespace WebApi.Services
 {
     public interface IEmailService
     {
-        void Send(string email,string info);
+        Task Send(string email,string info,IServiceScope scope); 
     }
     public class EmailService:IEmailService
     {
@@ -16,10 +19,9 @@ namespace WebApi.Services
         }
       
 
-        public void Send(string email, string info)
+        public async Task Send(string email, string info,IServiceScope scope)
         {
-            EmailClass SendEmail = new EmailClass(_configuration);
-            SendEmail.EmailSend(email,info);
+           await EmailClass.EmailSend(email,info,scope);
         }
     }
 }

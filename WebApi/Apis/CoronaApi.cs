@@ -1,4 +1,7 @@
-﻿using RestSharp;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,37 +15,40 @@ namespace WebApi.Apis
 {
     public class CoronaApi
     {
-        static IEmailService _emailService;
-        const string allnews = "totals";
+        private static IEmailService _emailService;
+        const string totals = "totals";
         public CoronaApi(IEmailService emailService)
         {
             _emailService = emailService;
         }
-        public static void GetData( string parameters,string email,IEmailService service)
+        public static void GetData( string parameters,string id, IServiceScope scope)
         {
+            IConfiguration _configuration = scope.ServiceProvider.GetService<IConfiguration>();
+            ILogger _logger = scope.ServiceProvider.GetService<ILogger<CoronaApi>>();
             try
             {
+                _logger.LogInformation("Get CoronaData " + parameters);
                 RestClient client;
-                if (parameters == allnews)
+                if (parameters == totals)
                 {
-                    client = new RestClient("https://covid-19-data.p.rapidapi.com/totals");
+                    client = new RestClient(_configuration["Url:CoronaUrlTotals"]);
                 }
                 else
                 {
-                    client = new RestClient("https://covid-19-data.p.rapidapi.com/country?name=" + parameters);
+                    client = new RestClient(_configuration["Url:CoronaUrlCountry"] + parameters);
                 }
                 var request = new RestRequest(Method.GET);
-                request.AddHeader("x-rapidapi-key", "8d213fc82fmsh2bece5fd797525ap134cd7jsn60eaf55ca93a");
-                request.AddHeader("x-rapidapi-host", "covid-19-data.p.rapidapi.com");
+                request.AddHeader("x-rapidapi-key", _configuration["Api:Key"]);
+                request.AddHeader("x-rapidapi-host", _configuration["Api:CoronaHost"]);
                 IRestResponse response = client.Execute(request);
                 List<CovidClass> covidClasses = ParseApiData.JsonStringToCSV<List<CovidClass>>(response.Content);
-                CsvWork.WriteCSV(covidClasses, Directory.GetCurrentDirectory() + @"\Corona-Info.csv");
-                service.Send(email, "Corona-Info");
-              //  Directory.Delete(@"\Corona-Info.csv");
+                CsvWork.WriteCSV(covidClasses, AppDomain.CurrentDomain.BaseDirectory + @"\Corona-Info" + id + ".csv");
+                //  Directory.Delete(@"\Corona-Info.csv");
+                _logger.LogInformation("Finish get CoronaData " +parameters);
             }
-            catch
+            catch(Exception ex)
             {
-
+                _logger.LogError(ex.Message);
             }
         }
     }

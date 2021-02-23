@@ -12,6 +12,7 @@ namespace WebApi.Jobs
     public class JobScheduler
     {
         static IScheduler scheduler;
+        static IConfiguration _configuration;
         const string Corona = "Corona-19";
         const string Actors = "Actors";
         const string Hearthstone = "Hearthstone";
@@ -21,7 +22,7 @@ namespace WebApi.Jobs
 
         public static async void Start(IServiceProvider serviceProvider)
         {
-
+            _configuration = serviceProvider.GetService<IConfiguration>();
             StdSchedulerFactory factory = new StdSchedulerFactory(GetThreadConstraint());
             scheduler = factory.GetScheduler().Result;
             scheduler.JobFactory = serviceProvider.GetService<AspnetCoreJobFactory>();
@@ -47,9 +48,7 @@ namespace WebApi.Jobs
         {
             TriggerBuilder triggerBuilder = TriggerBuilder.Create()
                         .WithIdentity(TriggerId)
-                        .WithSimpleSchedule(x => x
-                        .WithIntervalInMinutes(Convert.ToInt32(task.CronTime))
-                        .RepeatForever());
+                        .WithCronSchedule(task.CronTime);
 
             if (DateTime.Now >= DateTime.Parse(task.StartTime))
             {
@@ -61,17 +60,17 @@ namespace WebApi.Jobs
             }
 
             ITrigger trigger = null;
-            if (task.StartTime == Corona)
+            switch (task.SourceApi)
             {
-                trigger = triggerBuilder.ForJob(CoronaJobKey).Build();
-            }
-            if (task.SourceApi == Actors)
-            {
-                trigger = triggerBuilder.ForJob(ActorsJobKey).Build();
-            }
-            if (task.SourceApi == Hearthstone)
-            {
-                trigger = triggerBuilder.ForJob(HearthstoneJobKey).Build();
+                case Corona:
+                    trigger = triggerBuilder.ForJob(CoronaJobKey).Build();
+                    break;
+                case Actors:
+                    trigger = triggerBuilder.ForJob(ActorsJobKey).Build();
+                    break;
+                case Hearthstone:
+                    trigger = triggerBuilder.ForJob(HearthstoneJobKey).Build();
+                    break;
             }
             trigger.JobDataMap["email"] = email;
             trigger.JobDataMap["params"] = task.ApiParams;
@@ -92,13 +91,13 @@ namespace WebApi.Jobs
         private static NameValueCollection GetThreadConstraint() // получаем ограничение на кол-во одновременных потоков для задач
         {
             return new NameValueCollection { 
-                { "quartz.threadPool.threadCount", "10" },
-                {"quartz.serializer.type" ,"json" },
-                {"quartz.jobStore.type","Quartz.Impl.AdoJobStore.JobStoreTX, Quartz" },
-                {"quartz.jobStore.dataSource","default"},
-                {"quartz.jobStore.driverDelegateType","Quartz.Impl.AdoJobStore.SQLiteDelegate, Quartz" },
-                {"quartz.dataSource.default.provider","SQLite"},
-                {"quartz.dataSource.default.connectionString","Data Source=Quartz.sqlite; Version = 3;"}};
+                { "quartz.threadPool.threadCount", _configuration["QuartzParams:ThreadCount"] },
+                {"quartz.serializer.type" ,_configuration["QuartzParams:SerializerType"] },
+                {"quartz.jobStore.type",_configuration["QuartzParams:JobStoreType"]},
+                {"quartz.jobStore.dataSource",_configuration["QuartzParams:JobStoreDataSource"]},
+                {"quartz.jobStore.driverDelegateType",_configuration["QuartzParams:DriverDelegateType"]},
+                {"quartz.dataSource.default.provider",_configuration["QuartzParams:DefaultProvider"]},
+                {"quartz.dataSource.default.connectionString",_configuration["QuartzParams:ConnectionString"]}};
         }
     }
 }

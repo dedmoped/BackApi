@@ -1,7 +1,10 @@
-﻿using Quartz;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Quartz;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using WebApi.Models;
@@ -14,10 +17,12 @@ namespace WebApi.Jobs
     {
         private readonly IEmailService _emailService;
         private readonly ITaskRepository _taskRepository;
-        public CoronaJob(IEmailService emailService,ITaskRepository taskRepository)
+        private readonly IServiceScopeFactory serviceScopeFactory;
+        public CoronaJob(IEmailService emailService,ITaskRepository taskRepository,IServiceScopeFactory serviceScopeFactory )
         {
             _emailService = emailService;
             _taskRepository = taskRepository;
+            this.serviceScopeFactory = serviceScopeFactory;
         }
         public async Task Execute(IJobExecutionContext context)
         {
@@ -25,9 +30,13 @@ namespace WebApi.Jobs
              string param = dataMap.GetString("params");
             string email = dataMap.GetString("email");
             string id = dataMap.GetString("id");
-            Apis.CoronaApi.GetData(param,email,_emailService);
-            _taskRepository.UpdateDate(id.ToString());
-
+            using (var scope = serviceScopeFactory.CreateScope())
+            {
+                Apis.CoronaApi.GetData(param,id, scope);
+                _taskRepository.UpdateDate(id.ToString());
+                await _emailService.Send(email,"Corona-Info"+id.ToString(),scope);
+            }
+            File.Delete(AppDomain.CurrentDomain.BaseDirectory + @"\Corona-Info" + id.ToString() + ".csv");
         }
 
     }

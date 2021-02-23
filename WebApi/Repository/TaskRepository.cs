@@ -10,14 +10,12 @@ using WebApi.Models;
 
 namespace WebApi.Repository
 {
-    public class TaskRepository : ITaskRepository
+    public class TaskRepository : AbstractRepository<TaskRepository>,ITaskRepository
     {
-        private readonly string connectionstring;
-        private ILogger<TaskRepository> logger;
-        public TaskRepository(IConfiguration configuration,ILogger<TaskRepository> logger)
+ 
+        public TaskRepository(IConfiguration configuration,ILogger<TaskRepository> logger):base(configuration,logger)
         {
-            connectionstring = configuration["Database:ConnectionString"];
-            this.logger = logger;
+
         }
         public string Create(Data data,string userId)
         {
@@ -55,7 +53,7 @@ namespace WebApi.Repository
             catch(Exception ex)
             {
                 logger.LogError(ex.Message,"Task create Error");
-                return "Error";
+                return null;
             }
         }
 
@@ -81,7 +79,7 @@ namespace WebApi.Repository
                     logger.LogInformation("GetTask Start");
                     connection.Open();
                     SQLiteCommand insertSQL = new SQLiteCommand(connection);
-                    insertSQL.CommandText = "Select * from UserTask where id=@id";
+                    insertSQL.CommandText = "Select Id,Name,Description,LastGetDataTime,SourceApi,CronTime,UserId,ApiParams from UserTask where userId=@id";
                     insertSQL.Parameters.AddWithValue("@id", userId);
                     using (var rdr = insertSQL.ExecuteReader())
                     {
@@ -98,7 +96,6 @@ namespace WebApi.Repository
                                 CronTime = rdr.GetString(4),
                                 UserId = rdr.GetInt32(6),
                                 ApiParams = rdr.GetString(7)
-
                             });
                         }
 

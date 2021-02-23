@@ -83,8 +83,16 @@ namespace WebApi.Controllers
                     FormData.StartTime = DateTime.Now.ToString();
                     FormData.LastGetDataTime = DateTime.Now.ToString();
                 }
+                if (FormData.SourceApi == "")
+                {
+                    _logger.LogError("Choose Api");
+                    return StatusCode(500);
+                }
                 string taskid = _taskRepository.Create(FormData, UserId);
-                JobScheduler.AddTaskTriggerForJob(FormData, taskid,Email);
+                if (taskid != null)
+                {
+                    JobScheduler.AddTaskTriggerForJob(FormData, taskid, Email);
+                }
                 _logger.LogInformation("Task created");
                 return Ok();
             }
